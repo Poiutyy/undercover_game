@@ -253,6 +253,7 @@ function endGame(lobby) {
     leaderboard: sorted.map(p => ({ id: p.id, name: p.name, score: p.score || 0, role: p.role })),
     state: getLobbyPublicState(lobby),
   });
+
 }
 
 // ─── WEBSOCKET IMPLEMENTATION ──────────────────────────────────────────────────
