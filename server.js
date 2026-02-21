@@ -192,44 +192,71 @@ function startVoting(lobby) {
 }
 
 function processVotes(lobby) {
-  // Count votes
+  // Compter les votes
   const tally = {};
   lobby.players.forEach(p => { tally[p.id] = 0; });
   Object.values(lobby.votes).forEach(targetId => {
     tally[targetId] = (tally[targetId] || 0) + 1;
   });
 
-  // Find most voted
+  const imposteurPlayer = lobby.players.find(p => p.role === 'undercover' || p.role === 'mrwhite');
+  const imposteurId = imposteurPlayer?.id;
+
+  // Trouver le joueur le plus voté et détecter les égalités
   let maxVotes = 0;
-  let eliminated = null;
-  Object.entries(tally).forEach(([id, count]) => {
-    if (count > maxVotes) { maxVotes = count; eliminated = id; }
+  Object.values(tally).forEach(count => { if (count > maxVotes) maxVotes = count; });
+  const mostVotedIds = Object.entries(tally).filter(([,count]) => count === maxVotes).map(([id]) => id);
+  const isTie = mostVotedIds.length > 1;
+  const mostVotedId = isTie ? null : mostVotedIds[0]; // null si égalité
+
+  const imposteurVotes = tally[imposteurId] || 0;
+  const scoreDetails = []; // pour le client
+
+  // ── SCORING INDIVIDUEL ────────────────────────────────────────────────────
+
+  lobby.players.forEach(p => {
+    if (p.role === 'civilian') {
+      // Chaque civil qui a voté pour l'imposteur gagne 100 pts
+      const votedFor = lobby.votes[p.id];
+      if (votedFor === imposteurId) {
+        p.score = (p.score || 0) + 100;
+        scoreDetails.push({ playerId: p.id, reason: 'vote_correct', points: 100 });
+      }
+      // Bonus civil : l'imposteur est désigné majoritairement (sans égalité)
+      if (!isTie && mostVotedId === imposteurId) {
+        p.score = (p.score || 0) + 50;
+        scoreDetails.push({ playerId: p.id, reason: 'bonus_imposteur_elimine', points: 50 });
+      }
+    }
+
+    if (p.id === imposteurId) {
+      // L'imposteur gagne 100 pts pour chaque civil qui ne l'a pas voté
+      const votesContreImposteur = imposteurVotes;
+      const votesNonContre = lobby.players.length - 1 - votesContreImposteur; // -1 car il ne vote pas pour lui-même
+      const pts = votesNonContre * 100;
+      if (pts > 0) {
+        p.score = (p.score || 0) + pts;
+        scoreDetails.push({ playerId: p.id, reason: 'votes_non_contre', points: pts });
+      }
+      // Bonus imposteur : vote majoritaire vers un civil (sans égalité)
+      if (!isTie && mostVotedId !== imposteurId) {
+        p.score = (p.score || 0) + 50;
+        scoreDetails.push({ playerId: p.id, reason: 'bonus_civil_elimine', points: 50 });
+      }
+    }
   });
 
-  const eliminatedPlayer = lobby.players.find(p => p.id === eliminated);
-  // L'imposteur est soit 'undercover' soit 'mrwhite' (jamais les deux en même temps)
-  const imposteurPlayer = lobby.players.find(p => p.role === 'undercover' || p.role === 'mrwhite');
-
-  let roundResult = { eliminated: eliminated ? { id: eliminated, name: eliminatedPlayer?.name, role: eliminatedPlayer?.role } : null, tally };
-
-  // Scoring
-  if (eliminatedPlayer?.role === 'undercover' || eliminatedPlayer?.role === 'mrwhite') {
-    // Civilians win this round - each civilian gets 100 pts
-    lobby.players.forEach(p => {
-      if (p.role === 'civilian') p.score = (p.score || 0) + 100;
-    });
-    roundResult.winner = 'civilians';
-
-    // Si Mr. White est éliminé, il a le droit de deviner le mot
-    if (eliminatedPlayer?.role === 'mrwhite') {
-      roundResult.mrWhiteEliminated = true;
-    }
-  } else {
-    // L'imposteur survit - il gagne 100 pts par vote non contre lui
-    const nonVotesAgainst = lobby.players.length - (tally[imposteurPlayer?.id] || 0);
-    if (imposteurPlayer) imposteurPlayer.score = (imposteurPlayer.score || 0) + nonVotesAgainst * 100;
-    roundResult.winner = 'undercover';
-  }
+  // Déterminer le résultat pour l'affichage
+  const imposteurDesigne = !isTie && mostVotedId === imposteurId;
+  const roundResult = {
+    tally,
+    isTie,
+    mostVotedId,
+    imposteurId,
+    imposteurDesigne,
+    scoreDetails,
+    mrWhiteEliminated: imposteurDesigne && imposteurPlayer?.role === 'mrwhite',
+  };
 
   lobby.state = 'roundEnd';
   broadcast(lobby, {

@@ -1199,26 +1199,32 @@ function showRoundEnd(msg) {
   const r = msg.roundResult;
   const title = document.getElementById('round-result-title');
 
-  const elim = r.eliminated;
-  let titleText, titleClass;
-  if (elim?.role === 'undercover' || elim?.role === 'mrwhite') {
-    titleText = '✅ CIVILS GAGNENT';
-    titleClass = 'win';
+  // Titre selon résultat du vote
+  if (r.isTie) {
+    title.textContent = '⚖️ ÉGALITÉ';
+    title.className = 'result-big';
+    title.style.color = 'var(--warn)';
+  } else if (r.imposteurDesigne) {
+    title.textContent = '🕵️ IMPOSTEUR DÉMASQUÉ';
+    title.className = 'result-big win';
+    title.style.color = '';
   } else {
-    titleText = '🕵️ IMPOSTEUR SURVIT';
-    titleClass = 'lose';
+    title.textContent = '😈 IMPOSTEUR SURVIT';
+    title.className = 'result-big lose';
+    title.style.color = '';
   }
-  title.textContent = titleText;
-  title.className = 'result-big ' + titleClass;
 
   // Reveal words
   document.getElementById('reveal-civil').textContent = msg.wordPair?.civilian || '-';
   document.getElementById('reveal-under').textContent = msg.wordPair?.undercover || '-';
 
-  // Eliminated reveal
-  if (elim) {
-    const roleLabels = { civilian: '👤 Civil', undercover: '🕵️ Imposteur', mrwhite: '🤍 Mr. White' };
-    notify(`${elim.name} était ${roleLabels[elim.role] || elim.role}`, 4000);
+  // Notification du résultat du vote
+  if (r.isTie) {
+    notify('⚖️ Égalité — aucun bonus attribué', 4000);
+  } else {
+    const mostVoted = gameState.players.find(p => p.id === r.mostVotedId);
+    const isImposteur = r.mostVotedId === r.imposteurId;
+    notify(`${mostVoted?.name} a été désigné — ${isImposteur ? 'c'était l'imposteur ! (+50 civils)' : 'c'était un civil ! (+50 imposteur)'}`, 4000);
   }
 
   // Mr White guess section
@@ -1234,17 +1240,34 @@ function showRoundEnd(msg) {
     mwSection.classList.add('hidden');
   }
 
-  // Scores
+  // Scores avec détail des points gagnés cette manche
   const scoresEl = document.getElementById('round-scores');
   scoresEl.innerHTML = '';
   gameState.players.sort((a,b) => b.score - a.score).forEach(p => {
     const color = stringToColor(p.name);
+    const earned = r.scoreDetails.filter(d => d.playerId === p.id).reduce((sum, d) => sum + d.points, 0);
+    const details = r.scoreDetails.filter(d => d.playerId === p.id).map(d => {
+      const labels = {
+        vote_correct: '+100 vote correct',
+        bonus_imposteur_elimine: '+50 bonus imposteur démasqué',
+        votes_non_contre: `+${d.points} votes non contre toi`,
+        bonus_civil_elimine: '+50 bonus civil désigné',
+      };
+      return labels[d.reason] || `+${d.points}`;
+    }).join(' · ');
+
     const div = document.createElement('div');
     div.className = 'lb-item';
     div.innerHTML = `
       <div class="player-avatar" style="background:${color}20;color:${color}">${p.name[0].toUpperCase()}</div>
-      <div style="flex:1">${escHtml(p.name)}</div>
-      <div class="lb-score">${p.score}</div>
+      <div style="flex:1">
+        <div>${escHtml(p.name)}</div>
+        ${earned > 0 ? `<div style="font-size:10px;color:var(--success);margin-top:2px;">${details}</div>` : ''}
+      </div>
+      <div style="text-align:right;">
+        ${earned > 0 ? `<div style="font-size:11px;color:var(--success)">+${earned}</div>` : ''}
+        <div class="lb-score">${p.score}</div>
+      </div>
     `;
     scoresEl.appendChild(div);
   });
