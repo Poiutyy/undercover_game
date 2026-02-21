@@ -808,6 +808,17 @@ let mrWhiteNeedsGuess = false;
 
 // ─── WEBSOCKET ─────────────────────────────────────────────────────────────────
 function connect(onOpen) {
+  // Si deja connecte, envoyer directement
+  if (ws && ws.readyState === 1) {
+    onOpen();
+    return;
+  }
+  // Fermer proprement si en cours
+  if (ws && ws.readyState !== 3) {
+    ws.close();
+    ws = null;
+  }
+
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const url = `${protocol}//${location.host}`;
   ws = new WebSocket(url);
@@ -819,11 +830,13 @@ function connect(onOpen) {
 
   ws.onclose = () => {
     updateConnStatus(false);
-    setTimeout(() => notify('❌ Connexion perdue. Rechargez la page.', 5000), 500);
+    if (!document.getElementById('screen-home').classList.contains('hidden')) return;
+    setTimeout(() => notify('Connexion perdue. Rechargez la page.', 5000), 500);
   };
 
   ws.onerror = () => {
     updateConnStatus(false);
+    notify('Impossible de se connecter au serveur.');
   };
 
   ws.onmessage = (e) => {
@@ -886,7 +899,14 @@ function restartGame() {
 }
 
 function goHome() {
-  location.reload();
+  // Fermer la connexion WS et recharger proprement
+  if (ws) { ws.close(); ws = null; }
+  myId = null; myLobbyCode = null; isHost = false; gameState = null;
+  myWord = null; myRole = null; selectedVote = null;
+  showScreen('home');
+  document.getElementById('create-name').value = '';
+  document.getElementById('join-name').value = '';
+  document.getElementById('join-code').value = '';
 }
 
 function submitMrWhiteGuess() {
@@ -1224,9 +1244,7 @@ function showRoundEnd(msg) {
   } else {
     const mostVoted = gameState.players.find(p => p.id === r.mostVotedId);
     const isImposteur = r.mostVotedId === r.imposteurId;
-    notify(`${mostVoted?.name} a été désigné — ${isImposteur ? 'c'était l'imposteur ! (+50 civils)' : 'c'était un civil ! (+50 imposteur)'}`, 4000);
-  }
-
+   notify(`${mostVoted?.name} a été désigné — ${isImposteur ? "c'était l'imposteur ! (+50 civils)" : "c'était un civil ! (+50 imposteur)"}`, 4000);
   // Mr White guess section
   const mwSection = document.getElementById('mrwhite-guess-section');
   mrWhiteNeedsGuess = r.mrWhiteEliminated;
