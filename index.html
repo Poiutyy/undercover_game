@@ -953,7 +953,7 @@ function handleMessage(msg) {
 
     case 'yourWord':
       myWord = msg.word;
-      myRole = msg.role;
+      myRole = msg.word === null ? 'mrwhite' : 'player'; // seul Mr. White n'a pas de mot
       updateWordDisplay();
       break;
 
@@ -1077,21 +1077,20 @@ function updateWordDisplay() {
 
   if (myRole === 'mrwhite') {
     wordEl.textContent = '???';
-    if (voteWordEl) voteWordEl.textContent = '??? (Mr. White)';
+    if (voteWordEl) voteWordEl.textContent = '???';
   } else {
     wordEl.textContent = myWord || '?';
     if (voteWordEl) voteWordEl.textContent = myWord || '?';
   }
 
+  // On n'affiche plus le rôle — juste le mot
   const roleEl = document.getElementById('play-role-badge');
   if (roleEl) {
-    const roles = {
-      civilian: { label: 'Civil', cls: 'role-civilian', icon: '👤' },
-      undercover: { label: 'Imposteur', cls: 'role-undercover', icon: '🕵️' },
-      mrwhite: { label: 'Mr. White', cls: 'role-mrwhite', icon: '🤍' },
-    };
-    const r = roles[myRole] || roles.civilian;
-    roleEl.innerHTML = `<div class="role-badge ${r.cls}">${r.icon} ${r.label}</div>`;
+    if (myRole === 'mrwhite') {
+      roleEl.innerHTML = `<div class="role-badge role-mrwhite" style="font-size:11px;letter-spacing:0.1em;">Vous n'avez pas de mot — devinez celui des autres</div>`;
+    } else {
+      roleEl.innerHTML = '';
+    }
   }
 }
 

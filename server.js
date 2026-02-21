@@ -150,7 +150,7 @@ function startRound(lobby) {
 
   // Send each player their word privately
   lobby.players.forEach(p => {
-    sendTo(p, { type: 'yourWord', word: p.word, role: p.role });
+    sendTo(p, { type: 'yourWord', word: p.word });
   });
 
   broadcastCurrentPlayer(lobby);
