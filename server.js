@@ -27,6 +27,223 @@ let wordPairs = [
   { civilian: "Vampire", undercover: "Zombie" },
   { civilian: "Bière", undercover: "Vin" },
   { civilian: "Cinéma", undercover: "Théâtre" },
+  { civilian: "Shonen", undercover: "Seinen" },
+  { civilian: "Hokage", undercover: "Empereur" },
+  { civilian: "Super Saiyan", undercover: "Gear Second" },
+  { civilian: "Bankai", undercover: "Rasengan" },
+  { civilian: "Satoru Gojo", undercover: "Kakashi Hatake" },
+  { civilian: "L (Death Note)", undercover: "Light Yagami" },
+  { civilian: "Naruto", undercover: "Boruto" },
+  { civilian: "One Piece", undercover: "Fairy Tail" },
+  { civilian: "My Hero Academia", undercover: "One Punch Man" },
+  { civilian: "Eren Jäger", undercover: "Ken Kaneki" },
+  { civilian: "Mangaka", undercover: "Animateur" },
+  { civilian: "Death Note", undercover: "Code Geass" },
+  { civilian: "Jujutsu Kaisen", undercover: "Demon Slayer" },
+
+  // ─── RAP FR ────────────────────────────────────
+  { civilian: "Booba", undercover: "Rohff" },
+  { civilian: "PNL", undercover: "Djadja & Dinaz" },
+  { civilian: "Ninho", undercover: "Jul" },
+  { civilian: "Nekfeu", undercover: "Orelsan" },
+  { civilian: "Gazo", undercover: "Tiakola" },
+  { civilian: "Damso", undercover: "Hamza" },
+  { civilian: "Planète Rap", undercover: "Colors" },
+  { civilian: "Autotune", undercover: "Vocoder" },
+  { civilian: "Freestyle", undercover: "Clash" },
+  { civilian: "Boom Bap", undercover: "Drill" },
+  { civilian: "Beatmaker", undercover: "Producteur" },
+  { civilian: "Disque d'Or", undercover: "Disque de Platine" },
+  { civilian: "Bercy", undercover: "Stade de France" },
+  { civilian: "Werenoi", undercover: "SDM" },
+  { civilian: "13 Organisé", undercover: "Classico Organisé" },
+
+  // ─── FOOTBALL ──────────────────────────────────
+  { civilian: "Ballon d'Or", undercover: "Soulier d'Or" },
+  { civilian: "Ligue des Champions", undercover: "Europa League" },
+  { civilian: "Penalty", undercover: "Coup franc" },
+  { civilian: "Hors-jeu", undercover: "Faute" },
+  { civilian: "VAR", undercover: "Arbitre de touche" },
+  { civilian: "PSG", undercover: "Olympique de Marseille" },
+  { civilian: "Real Madrid", undercover: "FC Barcelone" },
+  { civilian: "Messi", undercover: "Cristiano Ronaldo" },
+  { civilian: "Mbappé", undercover: "Haaland" },
+  { civilian: "Guardiola", undercover: "Mourinho" },
+  { civilian: "Zidane", undercover: "Platini" },
+  { civilian: "Attaquant", undercover: "Ailier" },
+  { civilian: "Milieu défensif", undercover: "Défenseur central" },
+  { civilian: "Crampons", undercover: "Protège-tibias" },
+  { civilian: "Carton jaune", undercover: "Carton rouge" },
+  { civilian: "Coupe du Monde", undercover: "Euro" },
+  { civilian: "Juventus", undercover: "AC Milan" },
+  { civilian: "Arsenal", undercover: "Chelsea" },
+  { civilian: "Dribble", undercover: "Tacle" },
+  { civilian: "Premier League", undercover: "Liga" },
+
+  // ─── POLITIQUE ─────────────────────────────────
+  { civilian: "Assemblée Nationale", undercover: "Sénat" },
+  { civilian: "Député", undercover: "Sénateur" },
+  { civilian: "Premier Ministre", undercover: "Président de la République" },
+  { civilian: "Élysée", undercover: "Matignon" },
+  { civilian: "49.3", undercover: "Motion de censure" },
+  { civilian: "Gauche", undercover: "Droite" },
+  { civilian: "Capitalisme", undercover: "Libéralisme" },
+  { civilian: "Constitution", undercover: "Loi" },
+  { civilian: "Référendum", undercover: "Élection" },
+  { civilian: "Maire", undercover: "Préfet" },
+  { civilian: "Ministre", undercover: "Secrétaire d'État" },
+  { civilian: "Syndicat", undercover: "Patronat" },
+  { civilian: "Démocratie", undercover: "République" },
+  { civilian: "ONU", undercover: "OTAN" },
+  { civilian: "Emmanuel Macron", undercover: "François Hollande" },
+
+  // ─── ANIMAUX (Pièges classiques) ───────────────
+  { civilian: "Pingouin", undercover: "Manchot" },
+  { civilian: "Chouette", undercover: "Hibou" },
+  { civilian: "Crocodile", undercover: "Alligator" },
+  { civilian: "Dromadaire", undercover: "Chameau" },
+  { civilian: "Guépard", undercover: "Léopard" },
+  { civilian: "Crapaud", undercover: "Grenouille" },
+  { civilian: "Abeille", undercover: "Guêpe" },
+  { civilian: "Lièvre", undercover: "Lapin" },
+  { civilian: "Corbeau", undercover: "Corneille" },
+  { civilian: "Dauphin", undercover: "Marsouin" },
+
+  // ─── NOURRITURE & GASTRONOMIE ──────────────────
+  { civilian: "Brie", undercover: "Camembert" },
+  { civilian: "Macaron", undercover: "Meringue" },
+  { civilian: "Coriandre", undercover: "Persil" },
+  { civilian: "Clémentine", undercover: "Mandarine" },
+  { civilian: "Champagne", undercover: "Prosecco" },
+  { civilian: "Kebab", undercover: "Tacos" },
+  { civilian: "Beurre", undercover: "Margarine" },
+  { civilian: "Sushi", undercover: "Maki" },
+  { civilian: "Saumon", undercover: "Truite" },
+  { civilian: "Crêpe", undercover: "Gaufre" },
+
+  // ─── GÉOGRAPHIE & LIEUX ────────────────────────
+  { civilian: "Océan", undercover: "Mer" },
+  { civilian: "Fleuve", undercover: "Rivière" },
+  { civilian: "Pôle Nord", undercover: "Pôle Sud" },
+  { civilian: "Everest", undercover: "Mont Blanc" },
+  { civilian: "Sahara", undercover: "Gobi" },
+  { civilian: "Tokyo", undercover: "Kyoto" },
+  { civilian: "New York", undercover: "Los Angeles" },
+  { civilian: "Île", undercover: "Presqu'île" },
+  { civilian: "Capitale", undercover: "Métropole" },
+  { civilian: "Brésil", undercover: "Argentine" },
+
+  // ─── OBJETS & QUOTIDIEN ────────────────────────
+  { civilian: "Parfum", undercover: "Eau de toilette" },
+  { civilian: "Couette", undercover: "Couverture" },
+  { civilian: "Gant", undercover: "Moufle" },
+  { civilian: "Horloge", undercover: "Montre" },
+  { civilian: "Savon", undercover: "Gel douche" },
+  { civilian: "Balai", undercover: "Aspirateur" },
+  { civilian: "Miroir", undercover: "Vitre" },
+  { civilian: "Stylo", undercover: "Crayon" },
+  { civilian: "Livre", undercover: "Magazine" },
+  { civilian: "Chaussure", undercover: "Botte" },
+
+  // ─── CULTURE POP & ARTS ────────────────────────
+  { civilian: "Marvel", undercover: "DC Comics" },
+  { civilian: "Star Wars", undercover: "Star Trek" },
+  { civilian: "Seigneur des Anneaux", undercover: "Harry Potter" },
+  { civilian: "Netflix", undercover: "Amazon Prime" },
+  { civilian: "Oscars", undercover: "César" },
+  { civilian: "Peinture", undercover: "Sculpture" },
+  { civilian: "Piano", undercover: "Clavier" },
+  { civilian: "Roman", undercover: "Nouvelle" },
+  { civilian: "Magie", undercover: "Illusion" },
+  { civilian: "Batterie", undercover: "Percussions" },
+
+  // ─── SCIENCE & NATURE ──────────────────────────
+  { civilian: "Tornade", undercover: "Ouragan" },
+  { civilian: "Étoile", undercover: "Planète" },
+  { civilian: "Météorite", undercover: "Astéroïde" },
+  { civilian: "ADN", undercover: "ARN" },
+  { civilian: "Virus", undercover: "Bactérie" },
+  { civilian: "Atome", undercover: "Molécule" },
+  { civilian: "Tremblement de terre", undercover: "Tsunami" },
+  { civilian: "Nuage", undercover: "Brouillard" },
+  { civilian: "Gravité", undercover: "Magnétisme" },
+  { civilian: "Neige", undercover: "Grêle" },
+
+  // ─── MÉTIERS ───────────────────────────────────
+  { civilian: "Boulanger", undercover: "Pâtissier" },
+  { civilian: "Pompier", undercover: "Policier" },
+  { civilian: "Avocat", undercover: "Juge" },
+  { civilian: "Architecte", undercover: "Ingénieur" },
+  { civilian: "Acteur", undercover: "Réalisateur" },
+  { civilian: "Dentiste", undercover: "Orthodontiste" },
+  { civilian: "Journaliste", undercover: "Chroniqueur" },
+  { civilian: "Plombier", undercover: "Électricien" },
+  { civilian: "Chirurgien", undercover: "Médecin" },
+  { civilian: "Pilote", undercover: "Chauffeur" },
+
+  // ─── TECHNOLOGIE & WEB ─────────────────────────
+  { civilian: "Google", undercover: "ChatGPT" },
+  { civilian: "iPhone", undercover: "Samsung Galaxy" },
+  { civilian: "Instagram", undercover: "TikTok" },
+  { civilian: "Twitter", undercover: "Threads" },
+  { civilian: "Python", undercover: "JavaScript" },
+  { civilian: "Bitcoin", undercover: "Ethereum" },
+  { civilian: "Hacker", undercover: "Virus" },
+  { civilian: "Fibre optique", undercover: "4G / 5G" },
+  { civilian: "Wifi", undercover: "Bluetooth" },
+  { civilian: "Souris", undercover: "Clavier" },
+  { civilian: "Crêpe", undercover: "Pancake" }, // Les deux sont plats, ronds, sucrés/salés
+  { civilian: "Glace", undercover: "Sorbet" }, // Froid, dessert, parfum fruit
+  { civilian: "Croissant", undercover: "Pain au chocolat" }, // Boulangerie, matin, beurre
+  { civilian: "Frites", undercover: "Potatoes" }, // Patate, fast-food, frit
+  { civilian: "Mayonnaise", undercover: "Moutarde" }, // Condiment, jaune, pot
+  { civilian: "Raclette", undercover: "Fondue" }, // Fromage fondu, hiver, convivial
+  { civilian: "Saucisson", undercover: "Chorizo" }, // Charcuterie, apéro, tranches
+
+  // -- Quotidien & Maison --
+  { civilian: "Douche", undercover: "Bain" }, // Laver, eau, salle de bain, chaud
+  { civilian: "Canapé", undercover: "Fauteuil" }, // S'asseoir, salon, coussin
+  { civilian: "Couette", undercover: "Plaid" }, // Chaud, lit/canapé, dormir
+  { civilian: "Escalier", undercover: "Escalator" }, // Monter, descendre, marches
+  { civilian: "Montre", undercover: "Réveil" }, // Heure, matin, poignet/table
+  { civilian: "Livre", undercover: "Liseuse" }, // Lire, pages, histoire
+  { civilian: "Parapluie", undercover: "K-Way" }, // Pluie, se protéger, extérieur
+
+  // -- Transports & Lieux --
+  { civilian: "Hôtel", undercover: "Airbnb" }, // Dormir, voyage, location
+  { civilian: "Gare", undercover: "Aéroport" }, // Départ, voyage, valise, billets
+  { civilian: "Train", undercover: "Métro" }, // Rails, transport, rames
+  { civilian: "Autoroute", undercover: "Périphérique" }, // Voitures, vite, bouchons
+  { civilian: "Supermarché", undercover: "Marché" }, // Courses, caddie, fruits
+
+  // -- Tech & Réseaux Sociaux --
+  { civilian: "SMS", undercover: "WhatsApp" }, // Message, téléphone, écrire
+  { civilian: "Story", undercover: "Réel" }, // Instagram, vidéo courte, 24h
+  { civilian: "Spotify", undercover: "Deezer" }, // Musique, playlist, écouteurs
+  { civilian: "PlayStation", undercover: "Xbox" }, // Console, manette, jeux
+  { civilian: "Clavier", undercover: "Souris" }, // Ordinateur, taper, clic
+
+  // -- Corps & Vêtements --
+  { civilian: "Manteau", undercover: "Doudoune" }, // Hiver, chaud, fermer
+  { civilian: "Lunettes", undercover: "Lentilles" }, // Yeux, voir, myope
+  { civilian: "Barbe", undercover: "Moustache" }, // Poils, visage, raser
+  { civilian: "Casquette", undercover: "Bonnet" }, // Tête, cheveux, cacher
+
+  // -- Pop-Culture & Divertissement --
+  { civilian: "Série TV", undercover: "Film" }, // Regarder, écran, acteurs
+  { civilian: "Concert", undercover: "Festival" }, // Musique, public, scène, debout
+  { civilian: "Disney", undercover: "Pixar" }, // Dessin animé, enfance, cinéma
+  { civilian: "Mario", undercover: "Luigi" }, // Moustache, jeu vidéo, Nintendo
+  { civilian: "Batman", undercover: "Superman" }, // Super-héros, cape, comics
+  { civilian: "Baguette magique", undercover: "Balai volant" }, // Sorciers, Harry Potter, bois
+
+  // -- Sport & Nature --
+  { civilian: "Marathon", undercover: "Sprint" }, // Courir, course, athlétisme
+  { civilian: "Musculation", undercover: "Crossfit" }, // Sport, salle, poids, sueur
+  { civilian: "Natation", undercover: "Plongée" }, // Eau, piscine/mer, respiration
+  { civilian: "Orage", undercover: "Tempête" }, // Ciel, météo, vent, pluie
+  { civilian: "Forêt", undercover: "Jungle" }, // Arbres, nature, animaux, vert
+  { civilian: "Lac", undercover: "Océan" } // Eau, nager, profond
 ];
 
 // ─── GAME STATE ────────────────────────────────────────────────────────────────
