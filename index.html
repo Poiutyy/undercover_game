@@ -1244,7 +1244,9 @@ function showRoundEnd(msg) {
   } else {
     const mostVoted = gameState.players.find(p => p.id === r.mostVotedId);
     const isImposteur = r.mostVotedId === r.imposteurId;
-   notify(`${mostVoted?.name} a été désigné — ${isImposteur ? "c'était l'imposteur ! (+50 civils)" : "c'était un civil ! (+50 imposteur)"}`, 4000);
+    notify(`${mostVoted?.name} a été désigné — ${isImposteur ? "c\u2019était l\u2019imposteur ! (+50 civils)" : "c\u2019était un civil ! (+50 imposteur)"}`, 4000);
+  }
+
   // Mr White guess section
   const mwSection = document.getElementById('mrwhite-guess-section');
   mrWhiteNeedsGuess = r.mrWhiteEliminated;
