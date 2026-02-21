@@ -764,10 +764,10 @@
       <div id="round-scores"></div>
     </div>
 
-    <div id="next-round-host" class="hidden" style="margin-top:8px;">
-      <button class="btn btn-primary" onclick="nextRound()">MANCHE SUIVANTE →</button>
+    <div id="next-round-host" class="hidden" style="margin-top:12px;">
+      <button class="btn btn-primary" id="next-round-btn" onclick="nextRound()">MANCHE SUIVANTE →</button>
     </div>
-    <div id="next-round-guest" style="text-align:center;color:var(--muted);font-size:12px;margin-top:12px;">En attente de l'hôte...</div>
+    <div id="next-round-guest" class="hidden" style="text-align:center;color:var(--muted);font-size:12px;margin-top:12px;">En attente de l'hôte pour la prochaine manche...</div>
   </div>
 
   <!-- SCREEN: GAME END -->
@@ -1294,14 +1294,16 @@ function showRoundEnd(msg) {
 
   // Next round button
   const canNext = gameState.currentRound < gameState.settings.rounds;
+  const hostEl = document.getElementById('next-round-host');
+  const guestEl = document.getElementById('next-round-guest');
+  const nextBtn = document.getElementById('next-round-btn');
   if (isHost) {
-    document.getElementById('next-round-host').classList.remove('hidden');
-    document.getElementById('next-round-guest').style.display = 'none';
-    const nextBtn = document.querySelector('#next-round-host button');
-    if (nextBtn) nextBtn.textContent = canNext ? 'MANCHE SUIVANTE →' : 'VOIR LE CLASSEMENT';
+    hostEl.classList.remove('hidden');
+    guestEl.classList.add('hidden');
+    if (nextBtn) nextBtn.textContent = canNext ? 'MANCHE SUIVANTE →' : 'VOIR LE CLASSEMENT FINAL';
   } else {
-    document.getElementById('next-round-host').classList.add('hidden');
-    document.getElementById('next-round-guest').style.display = 'block';
+    hostEl.classList.add('hidden');
+    guestEl.classList.remove('hidden');
   }
 }
 
