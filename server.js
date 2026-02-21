@@ -110,24 +110,20 @@ function assignRoles(lobby) {
   // Shuffle players
   const shuffled = [...players].sort(() => Math.random() - 0.5);
 
-  // Assign undercover (1 player)
-  const undercoverIdx = Math.floor(Math.random() * shuffled.length);
-  let mrWhiteIdx = -1;
-
-  if (lobby.settings.mrWhiteMode && shuffled.length >= 3) {
-    // Pick different player for mr white
-    do { mrWhiteIdx = Math.floor(Math.random() * shuffled.length); }
-    while (mrWhiteIdx === undercoverIdx);
-  }
+  // Pick 1 imposteur index
+  const imposteurIdx = Math.floor(Math.random() * shuffled.length);
 
   shuffled.forEach((p, i) => {
     const player = lobby.players.find(x => x.id === p.id);
-    if (i === undercoverIdx) {
-      player.role = 'undercover';
-      player.word = lobby.wordPair.undercover;
-    } else if (i === mrWhiteIdx) {
-      player.role = 'mrwhite';
-      player.word = null;
+    if (i === imposteurIdx) {
+      if (lobby.settings.mrWhiteMode) {
+        // En mode Mr. White, l'imposteur EST Mr. White (pas de mot)
+        player.role = 'mrwhite';
+        player.word = null;
+      } else {
+        player.role = 'undercover';
+        player.word = lobby.wordPair.undercover;
+      }
     } else {
       player.role = 'civilian';
       player.word = lobby.wordPair.civilian;
@@ -211,8 +207,8 @@ function processVotes(lobby) {
   });
 
   const eliminatedPlayer = lobby.players.find(p => p.id === eliminated);
-  const undercoverPlayer = lobby.players.find(p => p.role === 'undercover');
-  const mrWhitePlayer = lobby.players.find(p => p.role === 'mrwhite');
+  // L'imposteur est soit 'undercover' soit 'mrwhite' (jamais les deux en même temps)
+  const imposteurPlayer = lobby.players.find(p => p.role === 'undercover' || p.role === 'mrwhite');
 
   let roundResult = { eliminated: eliminated ? { id: eliminated, name: eliminatedPlayer?.name, role: eliminatedPlayer?.role } : null, tally };
 
@@ -224,15 +220,14 @@ function processVotes(lobby) {
     });
     roundResult.winner = 'civilians';
 
-    // If mr white was eliminated, they get to guess
+    // Si Mr. White est éliminé, il a le droit de deviner le mot
     if (eliminatedPlayer?.role === 'mrwhite') {
       roundResult.mrWhiteEliminated = true;
     }
   } else {
-    // Undercover/mrWhite survives - they get 100 pts per non-vote against them
-    const nonVotesAgainstUndercover = lobby.players.length - (tally[undercoverPlayer?.id] || 0);
-    if (undercoverPlayer) undercoverPlayer.score = (undercoverPlayer.score || 0) + nonVotesAgainstUndercover * 100;
-    if (mrWhitePlayer) mrWhitePlayer.score = (mrWhitePlayer.score || 0) + nonVotesAgainstUndercover * 100;
+    // L'imposteur survit - il gagne 100 pts par vote non contre lui
+    const nonVotesAgainst = lobby.players.length - (tally[imposteurPlayer?.id] || 0);
+    if (imposteurPlayer) imposteurPlayer.score = (imposteurPlayer.score || 0) + nonVotesAgainst * 100;
     roundResult.winner = 'undercover';
   }
 
