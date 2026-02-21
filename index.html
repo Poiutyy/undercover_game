@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNDERCOVER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3f;
+    --accent: #ff3c5f;
+    --accent2: #7c3aed;
+    --gold: #f5c842;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* ANIMATED BACKGROUND CIRCLES */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .bg-orb-1 { width: 500px; height: 500px; background: rgba(124,58,237,0.08); top: -100px; left: -100px; }
+  .bg-orb-2 { width: 400px; height: 400px; background: rgba(255,60,95,0.06); bottom: -100px; right: -100px; animation-delay: -7s; }
+  .bg-orb-3 { width: 300px; height: 300px; background: rgba(245,200,66,0.04); top: 40%; left: 40%; animation-delay: -14s; }
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* LAYOUT */
+  #app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  /* SCREENS */
+  .screen { width: 100%; max-width: 700px; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  /* LOGO */
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    text-align: center;
+  }
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 12px 0;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* INPUTS */
+  input[type=text], input[type=number], textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255,60,95,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 4px 30px rgba(255,60,95,0.5); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--muted); }
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #e5a50a);
+    color: #000;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: 'DM Mono', monospace;
+  }
+  .btn-sm { padding: 8px 16px; font-size: 14px; width: auto; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* CODE DISPLAY */
+  .lobby-code {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 12vw, 80px);
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 30px rgba(245,200,66,0.4);
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes pulse-glow {
+    from { text-shadow: 0 0 20px rgba(245,200,66,0.3); }
+    to { text-shadow: 0 0 40px rgba(245,200,66,0.6); }
+  }
+
+  /* PLAYER LIST */
+  .player-list { display: flex; flex-direction: column; gap: 8px; }
+  .player-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .player-item.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(255,60,95,0.15); }
+  .player-item.voted-out { opacity: 0.4; text-decoration: line-through; }
+  .player-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .player-name { flex: 1; font-weight: 500; }
+  .player-score { color: var(--gold); font-size: 12px; }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .badge-host { background: rgba(245,200,66,0.2); color: var(--gold); }
+  .badge-you { background: rgba(124,58,237,0.3); color: #a78bfa; }
+  .badge-speaking { background: rgba(255,60,95,0.2); color: var(--accent); animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* WORD REVEAL */
+  .word-card {
+    text-align: center;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .word-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(255,60,95,0.05));
+  }
+  .word-label {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .word-value {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 6vw, 48px);
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+  .role-civilian { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+  .role-undercover { background: rgba(255,60,95,0.15); color: #fca5a5; border: 1px solid rgba(255,60,95,0.3); }
+  .role-mrwhite { background: rgba(148,163,184,0.15); color: #cbd5e1; border: 1px solid rgba(148,163,184,0.3); }
+
+  /* HINTS AREA */
+  .hints-grid { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
+  .hint-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid var(--border);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+  .hint-item.mine { border-left-color: var(--accent2); }
+  .hint-name { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .hint-text { color: var(--text); font-weight: 500; }
+  .hint-turn { color: var(--muted); font-size: 10px; margin-left: auto; }
+
+  /* TIMER */
+  .timer-ring {
+    position: relative;
+    width: 64px; height: 64px;
+    flex-shrink: 0;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring .bg { fill: none; stroke: var(--surface2); stroke-width: 4; }
+  .timer-ring .progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.3s; }
+  .timer-number {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.3s; }
+
+  /* VOTE GRID */
+  .vote-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .vote-card {
+    padding: 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .vote-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .vote-card.selected { border-color: var(--accent); background: rgba(255,60,95,0.1); }
+  .vote-card.voted-out { opacity: 0.3; pointer-events: none; }
+
+  /* RESULTS */
+  .result-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .result-big.win { color: var(--gold); text-shadow: 0 0 30px rgba(245,200,66,0.5); }
+  .result-big.lose { color: var(--danger); }
+
+  /* LEADERBOARD */
+  .lb-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .lb-rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--muted);
+    width: 28px;
+    text-align: center;
+  }
+  .lb-rank.first { color: var(--gold); }
+  .lb-rank.second { color: #94a3b8; }
+  .lb-rank.third { color: #cd7c2f; }
+  .lb-score {
+    margin-left: auto;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+  }
+
+  /* SETTINGS */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { flex: 1; }
+  .setting-label small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .setting-row input[type=number] { width: 80px; text-align: center; }
+
+  /* TOGGLE */
+  .toggle { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: var(--surface2);
+    border-radius: 26px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(124,58,237,0.3); border-color: var(--accent2); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(22px); background: var(--accent2); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px; margin-bottom: 16px; }
+  .tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--surface); color: var(--text); }
+
+  /* WORD EDITOR */
+  .word-pair-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .word-pair-row input { font-size: 13px; }
+  .btn-remove {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 18px;
+    flex-shrink: 0;
+    padding: 4px;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .status-dot.disconnected { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    z-index: 999;
+    animation: notifIn 0.3s ease;
+    font-size: 13px;
+    max-width: 90vw;
+    text-align: center;
+  }
+  @keyframes notifIn { from { opacity:0; transform:translate(-50%,-10px); } to { opacity:1; transform:translate(-50%,0); } }
+
+  /* INPUT AREA */
+  .input-group { display: flex; gap: 8px; align-items: center; }
+  .input-group input { flex: 1; }
+
+  /* GRID 2 */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* TURN INDICATOR */
+  .turn-banner {
+    background: linear-gradient(135deg, rgba(255,60,95,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(255,60,95,0.3);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    margin: 12px 0;
+  }
+  .turn-banner .name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    font-style: italic;
+  }
+  .turn-banner small {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* MR WHITE GUESS */
+  .mr-white-box {
+    background: linear-gradient(135deg, rgba(148,163,184,0.1), rgba(148,163,184,0.05));
+    border: 1px solid rgba(148,163,184,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  @media (max-width: 500px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .vote-grid { grid-template-columns: repeat(2, 1fr); }
+    #app { padding: 12px; }
+    .card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<div id="notif-container"></div>
+
+<div id="app">
+
+  <!-- SCREEN: HOME -->
+  <div id="screen-home" class="screen">
+    <div style="text-align:center; padding: 40px 0 20px;">
+      <div class="logo">UNDER<br>COVER</div>
+      <div class="logo-sub">Le jeu de l'imposteur</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Rejoindre une partie</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input type="text" id="join-name" placeholder="Votre pseudo" maxlength="20">
+        <input type="text" id="join-code" placeholder="Code du lobby (ex: AB12C)" style="text-transform:uppercase;letter-spacing:0.2em;" maxlength="5">
+        <button class="btn btn-primary" onclick="joinLobby()">REJOINDRE</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);margin:4px 0;font-size:12px;">ou</div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--gold)"></div>Créer une partie</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input type="text" id="create-name" placeholder="Votre pseudo" maxlength="20">
+        <button class="btn btn-gold" onclick="createLobby()">CRÉER UN LOBBY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: LOBBY -->
+  <div id="screen-lobby" class="screen hidden">
+    <div style="margin-bottom:12px;">
+      <div class="status-bar">
+        <div class="status-dot" id="conn-dot"></div>
+        <span id="conn-label">Connecté</span>
+        <span style="margin-left:auto;opacity:0.5;font-size:11px;">ws://&lt;server&gt;</span>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <div class="card-title" style="justify-content:center;"><div class="dot" style="background:var(--gold)"></div>CODE DU LOBBY</div>
+      <div class="lobby-code" id="lobby-code-display">-----</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:8px;">Partagez ce code avec vos amis</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('tab-players','tab-settings','tab-words',this)">Joueurs</button>
+      <button class="tab" onclick="showTab('tab-settings','tab-players','tab-words',this)">Paramètres</button>
+      <button class="tab" onclick="showTab('tab-words','tab-players','tab-settings',this)" id="tab-words-btn">Mots</button>
+    </div>
+
+    <!-- TAB: PLAYERS -->
+    <div id="tab-players">
+      <div class="card">
+        <div class="card-title"><div class="dot"></div>JOUEURS (<span id="player-count">0</span>/6)</div>
+        <div class="player-list" id="lobby-player-list"></div>
+        <div style="margin-top:16px;display:flex;gap:8px;" id="host-controls">
+          <button class="btn btn-primary" onclick="startGame()" id="start-btn">LANCER LA PARTIE</button>
+        </div>
+        <div id="wait-msg" style="text-align:center;color:var(--muted);margin-top:12px;font-size:12px;display:none;">En attente de l'hôte...</div>
+      </div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="tab-settings" class="hidden">
+      <div class="card">
+        <div class="card-title"><div class="dot" style="background:var(--accent2)"></div>PARAMÈTRES</div>
+        <div id="settings-form">
+          <div class="setting-row">
+            <div class="setting-label">Nombre de manches<small>Nombre total de rounds joués</small></div>
+            <input type="number" id="s-rounds" min="1" max="10" value="3" onchange="settingsChanged()">
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Tours par manche<small>Chaque joueur joue X fois par round</small></div>
+            <input type="number" id="s-turns" min="1" max="5" value="2" onchange="settingsChanged()">
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Temps par tour (sec)<small>0 = pas de limite</small></div>
+            <input type="number" id="s-time" min="0" max="300" value="30" onchange="settingsChanged()">
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Mode Mr. White<small>Un joueur n'a pas de mot et doit deviner</small></div>
+            <label class="toggle"><input type="checkbox" id="s-mrwhite" onchange="settingsChanged()"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div id="settings-readonly" class="hidden" style="color:var(--muted);font-size:12px;text-align:center;padding:12px;">Seul l'hôte peut modifier les paramètres</div>
+      </div>
+    </div>
+
+    <!-- TAB: WORDS -->
+    <div id="tab-words" class="hidden">
+      <div class="card">
+        <div class="card-title"><div class="dot" style="background:var(--gold)"></div>LISTE DES MOTS</div>
+        <div id="word-pairs-editor"></div>
+        <div id="word-editor-host">
+          <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%;" onclick="addWordPair()">+ Ajouter une paire</button>
+          <button class="btn btn-secondary" style="margin-top:8px;" onclick="saveWords()">ENREGISTRER</button>
+        </div>
+        <div id="word-editor-guest" class="hidden" style="color:var(--muted);font-size:12px;text-align:center;padding:12px;">Seul l'hôte peut modifier les mots</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: PLAYING -->
+  <div id="screen-playing" class="screen hidden">
+    <div class="status-bar">
+      <div class="status-dot" id="conn-dot-play"></div>
+      <span id="round-info">Manche 1/3</span>
+      <span style="margin-left:auto;">Tour <span id="turn-info">1</span></span>
+    </div>
+
+    <!-- Word reminder -->
+    <div class="word-card" id="word-reminder" style="padding:16px;">
+      <div class="word-label">Votre mot</div>
+      <div class="word-value" id="play-word">?</div>
+      <div id="play-role-badge"></div>
+    </div>
+
+    <!-- Current player banner -->
+    <div class="turn-banner" id="turn-banner">
+      <small>C'est le tour de</small>
+      <div class="name" id="current-player-name">---</div>
+    </div>
+
+    <!-- Timer -->
+    <div style="display:flex;align-items:center;gap:16px;margin:12px 0;" id="timer-row">
+      <div class="timer-ring" id="timer-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="bg" cx="32" cy="32" r="28"/>
+          <circle class="progress" cx="32" cy="32" r="28" id="timer-circle"
+            stroke-dasharray="175.93"
+            stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-number" id="timer-number">∞</div>
+      </div>
+      <div id="my-turn-input" class="hidden" style="flex:1;">
+        <input type="text" id="hint-input" placeholder="Votre indice..." maxlength="40">
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="submitHint()">ENVOYER</button>
+      </div>
+      <div id="waiting-for-player" style="flex:1;color:var(--muted);">En attente...</div>
+    </div>
+
+    <!-- Hints log -->
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>INDICES (<span id="hint-count">0</span>)</div>
+      <div class="hints-grid" id="hints-list"></div>
+    </div>
+
+    <!-- Players sidebar -->
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--muted)"></div>JOUEURS</div>
+      <div class="player-list" id="play-player-list"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: VOTING -->
+  <div id="screen-voting" class="screen hidden">
+    <div style="text-align:center;margin:20px 0;">
+      <div class="logo" style="font-size:40px;">VOTE</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px;">Qui est l'imposteur ?</div>
+    </div>
+
+    <!-- Word reminder during vote -->
+    <div class="word-card" style="padding:12px;margin:8px 0;">
+      <div class="word-label" style="font-size:10px;">Votre mot</div>
+      <div class="word-value" style="font-size:24px;" id="vote-word-reminder">?</div>
+    </div>
+
+    <!-- Hints review -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title"><div class="dot"></div>RAPPEL DES INDICES</div>
+      <div class="hints-grid" id="vote-hints-list" style="max-height:200px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--danger)"></div>ÉLIMINER</div>
+      <div class="vote-grid" id="vote-grid"></div>
+      <div style="margin-top:12px;text-align:center;color:var(--muted);font-size:12px;">
+        <span id="votes-received">0</span> vote(s) reçus sur <span id="votes-total">0</span>
+      </div>
+      <button class="btn btn-danger" style="margin-top:12px;" id="confirm-vote-btn" onclick="confirmVote()" disabled>CONFIRMER LE VOTE</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: ROUND END -->
+  <div id="screen-roundend" class="screen hidden">
+    <div style="text-align:center;margin:20px 0;">
+      <div id="round-result-title" class="result-big"></div>
+    </div>
+
+    <!-- Mr White guess -->
+    <div id="mrwhite-guess-section" class="hidden">
+      <div class="mr-white-box card">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">MR. WHITE — Dernière chance</div>
+        <div id="mrwhite-is-you" class="hidden">
+          <p style="margin-bottom:12px;">Vous êtes Mr. White ! Devinez le mot des civils pour gagner +200 pts</p>
+          <div class="input-group">
+            <input type="text" id="mrwhite-guess-input" placeholder="Votre devinette...">
+            <button class="btn btn-secondary btn-sm" onclick="submitMrWhiteGuess()">OK</button>
+          </div>
+        </div>
+        <div id="mrwhite-waiting" class="hidden">
+          <p style="color:var(--muted);">Mr. White devine le mot des civils...</p>
+        </div>
+        <div id="mrwhite-result" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--gold)"></div>RÉVÉLATION</div>
+      <div id="revealed-words" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center;">
+        <div style="padding:16px;background:var(--surface2);border-radius:8px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">MOT CIVIL</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;" id="reveal-civil">-</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,60,95,0.08);border-radius:8px;border:1px solid rgba(255,60,95,0.2);">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">MOT IMPOSTEUR</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:#fca5a5;" id="reveal-under">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>SCORES</div>
+      <div id="round-scores"></div>
+    </div>
+
+    <div id="next-round-host" class="hidden" style="margin-top:8px;">
+      <button class="btn btn-primary" onclick="nextRound()">MANCHE SUIVANTE →</button>
+    </div>
+    <div id="next-round-guest" style="text-align:center;color:var(--muted);font-size:12px;margin-top:12px;">En attente de l'hôte...</div>
+  </div>
+
+  <!-- SCREEN: GAME END -->
+  <div id="screen-gameend" class="screen hidden">
+    <div style="text-align:center;padding:32px 0 20px;">
+      <div class="logo" style="font-size:56px;">FIN</div>
+      <div class="logo-sub">Classement final</div>
+    </div>
+
+    <div class="card">
+      <div id="leaderboard"></div>
+    </div>
+
+    <div id="gameend-host" class="hidden" style="margin-top:12px;">
+      <div class="grid-2">
+        <button class="btn btn-primary" onclick="restartGame()">REJOUER</button>
+        <button class="btn btn-secondary" onclick="goHome()">ACCUEIL</button>
+      </div>
+    </div>
+    <div id="gameend-guest" style="margin-top:12px;">
+      <button class="btn btn-secondary" onclick="goHome()">ACCUEIL</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let ws = null;
+let myId = null;
+let myLobbyCode = null;
+let isHost = false;
+let gameState = null;
+let myWord = null;
+let myRole = null;
+let selectedVote = null;
+let timerInterval = null;
+let timerRemaining = 0;
+let localWordPairs = [];
+let mrWhiteNeedsGuess = false;
+
+// ─── WEBSOCKET ─────────────────────────────────────────────────────────────────
+function connect(onOpen) {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const url = `${protocol}//${location.host}`;
+  ws = new WebSocket(url);
+
+  ws.onopen = () => {
+    updateConnStatus(true);
+    onOpen();
+  };
+
+  ws.onclose = () => {
+    updateConnStatus(false);
+    setTimeout(() => notify('❌ Connexion perdue. Rechargez la page.', 5000), 500);
+  };
+
+  ws.onerror = () => {
+    updateConnStatus(false);
+  };
+
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+    handleMessage(msg);
+  };
+}
+
+function send(obj) {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+}
+
+function updateConnStatus(ok) {
+  ['conn-dot','conn-dot-play'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'status-dot' + (ok ? '' : ' disconnected');
+  });
+}
+
+// ─── GAME ACTIONS ──────────────────────────────────────────────────────────────
+function createLobby() {
+  const name = document.getElementById('create-name').value.trim();
+  if (!name) { notify('Entrez votre pseudo'); return; }
+  connect(() => send({ type: 'createLobby', name }));
+}
+
+function joinLobby() {
+  const name = document.getElementById('join-name').value.trim();
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if (!name) { notify('Entrez votre pseudo'); return; }
+  if (!code) { notify('Entrez un code de lobby'); return; }
+  connect(() => send({ type: 'joinLobby', name, code }));
+}
+
+function startGame() {
+  send({ type: 'startGame' });
+}
+
+function submitHint() {
+  const hint = document.getElementById('hint-input').value.trim();
+  if (!hint) { notify('Entrez un indice'); return; }
+  send({ type: 'submitHint', hint });
+  document.getElementById('hint-input').value = '';
+}
+
+function confirmVote() {
+  if (!selectedVote) return;
+  send({ type: 'vote', targetId: selectedVote });
+  document.getElementById('confirm-vote-btn').disabled = true;
+  document.querySelectorAll('.vote-card').forEach(c => c.style.pointerEvents = 'none');
+}
+
+function nextRound() {
+  send({ type: 'nextRound' });
+}
+
+function restartGame() {
+  send({ type: 'restartGame' });
+}
+
+function goHome() {
+  location.reload();
+}
+
+function submitMrWhiteGuess() {
+  const g = document.getElementById('mrwhite-guess-input').value.trim();
+  if (!g) return;
+  send({ type: 'mrWhiteGuess', guess: g });
+  document.getElementById('mrwhite-guess-input').disabled = true;
+}
+
+function settingsChanged() {
+  if (!isHost) return;
+  const settings = {
+    rounds: parseInt(document.getElementById('s-rounds').value),
+    turnsPerRound: parseInt(document.getElementById('s-turns').value),
+    turnTime: parseInt(document.getElementById('s-time').value),
+    mrWhiteMode: document.getElementById('s-mrwhite').checked,
+  };
+  send({ type: 'updateSettings', settings });
+}
+
+function saveWords() {
+  send({ type: 'updateWordList', words: localWordPairs });
+  notify('✅ Liste de mots sauvegardée');
+}
+
+// ─── MESSAGE HANDLER ───────────────────────────────────────────────────────────
+function handleMessage(msg) {
+  switch(msg.type) {
+    case 'joined':
+      myId = msg.playerId;
+      myLobbyCode = msg.lobbyCode;
+      isHost = msg.isHost;
+      gameState = msg.state;
+      showScreen('lobby');
+      updateLobbyUI();
+      if (isHost) send({ type: 'getWordList' });
+      break;
+
+    case 'wordList':
+      localWordPairs = msg.words;
+      renderWordEditor();
+      break;
+
+    case 'wordListUpdated':
+      localWordPairs = msg.words;
+      renderWordEditor();
+      break;
+
+    case 'playerJoined':
+    case 'playerLeft':
+    case 'settingsUpdated':
+      gameState = msg.state;
+      updateLobbyUI();
+      break;
+
+    case 'roundStart':
+      gameState = msg.state;
+      showScreen('playing');
+      initPlayScreen();
+      break;
+
+    case 'yourWord':
+      myWord = msg.word;
+      myRole = msg.role;
+      updateWordDisplay();
+      break;
+
+    case 'yourTurn':
+      gameState = msg.state;
+      updatePlayScreen(msg);
+      break;
+
+    case 'hintSubmitted':
+      gameState = msg.state;
+      renderHints(msg.hints, 'hints-list');
+      document.getElementById('hint-count').textContent = msg.hints.length;
+      break;
+
+    case 'votingStart':
+      gameState = msg.state;
+      showVoting();
+      break;
+
+    case 'voteUpdate':
+      document.getElementById('votes-received').textContent = msg.votes;
+      document.getElementById('votes-total').textContent = msg.total;
+      break;
+
+    case 'roundEnd':
+      gameState = msg.state;
+      showRoundEnd(msg);
+      break;
+
+    case 'mrWhiteGuessResult':
+      showMrWhiteResult(msg);
+      break;
+
+    case 'gameEnd':
+      showGameEnd(msg);
+      break;
+
+    case 'gameRestart':
+      gameState = msg.state;
+      myWord = null; myRole = null;
+      showScreen('lobby');
+      updateLobbyUI();
+      break;
+
+    case 'error':
+      notify('⚠️ ' + msg.msg);
+      break;
+  }
+}
+
+// ─── UI FUNCTIONS ──────────────────────────────────────────────────────────────
+function showScreen(name) {
+  ['home','lobby','playing','voting','roundend','gameend'].forEach(s => {
+    document.getElementById(`screen-${s}`).classList.add('hidden');
+  });
+  document.getElementById(`screen-${name}`).classList.remove('hidden');
+  stopTimer();
+}
+
+function showTab(...args) {
+  // args: showId, ...hideIds, clickedBtn
+  const btn = args[args.length - 1];
+  const showId = args[0];
+  const hideIds = args.slice(1, args.length - 1);
+  document.getElementById(showId).classList.remove('hidden');
+  hideIds.forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateLobbyUI() {
+  if (!gameState) return;
+  document.getElementById('lobby-code-display').textContent = gameState.code;
+  document.getElementById('player-count').textContent = gameState.players.length;
+
+  // Players list
+  const list = document.getElementById('lobby-player-list');
+  list.innerHTML = '';
+  gameState.players.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'player-item';
+    const color = stringToColor(p.name);
+    div.innerHTML = `
+      <div class="player-avatar" style="background:${color}20;color:${color}">${p.name[0].toUpperCase()}</div>
+      <div class="player-name">${escHtml(p.name)}</div>
+      ${p.isHost ? '<span class="badge badge-host">HÔTE</span>' : ''}
+      ${p.id === myId ? '<span class="badge badge-you">VOUS</span>' : ''}
+    `;
+    list.appendChild(div);
+  });
+
+  // Host controls
+  const hc = document.getElementById('host-controls');
+  const wm = document.getElementById('wait-msg');
+  if (isHost) { hc.style.display = 'flex'; wm.style.display = 'none'; }
+  else { hc.style.display = 'none'; wm.style.display = 'block'; }
+
+  // Settings
+  const s = gameState.settings;
+  document.getElementById('s-rounds').value = s.rounds;
+  document.getElementById('s-turns').value = s.turnsPerRound;
+  document.getElementById('s-time').value = s.turnTime;
+  document.getElementById('s-mrwhite').checked = s.mrWhiteMode;
+
+  if (isHost) {
+    document.getElementById('settings-form').classList.remove('hidden');
+    document.getElementById('settings-readonly').classList.add('hidden');
+    document.getElementById('word-editor-host').classList.remove('hidden');
+    document.getElementById('word-editor-guest').classList.add('hidden');
+  } else {
+    document.getElementById('settings-form').classList.add('hidden');
+    document.getElementById('settings-readonly').classList.remove('hidden');
+    document.getElementById('word-editor-host').classList.add('hidden');
+    document.getElementById('word-editor-guest').classList.remove('hidden');
+  }
+}
+
+function updateWordDisplay() {
+  const wordEl = document.getElementById('play-word');
+  const voteWordEl = document.getElementById('vote-word-reminder');
+
+  if (myRole === 'mrwhite') {
+    wordEl.textContent = '???';
+    if (voteWordEl) voteWordEl.textContent = '??? (Mr. White)';
+  } else {
+    wordEl.textContent = myWord || '?';
+    if (voteWordEl) voteWordEl.textContent = myWord || '?';
+  }
+
+  const roleEl = document.getElementById('play-role-badge');
+  if (roleEl) {
+    const roles = {
+      civilian: { label: 'Civil', cls: 'role-civilian', icon: '👤' },
+      undercover: { label: 'Imposteur', cls: 'role-undercover', icon: '🕵️' },
+      mrwhite: { label: 'Mr. White', cls: 'role-mrwhite', icon: '🤍' },
+    };
+    const r = roles[myRole] || roles.civilian;
+    roleEl.innerHTML = `<div class="role-badge ${r.cls}">${r.icon} ${r.label}</div>`;
+  }
+}
+
+function initPlayScreen() {
+  document.getElementById('round-info').textContent = `Manche ${gameState.currentRound}/${gameState.settings.rounds}`;
+  document.getElementById('hints-list').innerHTML = '';
+  document.getElementById('hint-count').textContent = '0';
+  updateWordDisplay();
+  renderPlayPlayers();
+}
+
+function updatePlayScreen(msg) {
+  const currentId = msg.currentPlayerId;
+  document.getElementById('round-info').textContent = `Manche ${msg.round}/${gameState.settings.rounds}`;
+  document.getElementById('turn-info').textContent = msg.turn;
+
+  const current = gameState.players.find(p => p.id === currentId);
+  document.getElementById('current-player-name').textContent = current?.name || '?';
+
+  const isMyTurn = currentId === myId;
+  document.getElementById('my-turn-input').classList.toggle('hidden', !isMyTurn);
+  document.getElementById('waiting-for-player').classList.toggle('hidden', isMyTurn);
+  document.getElementById('hint-input').value = '';
+
+  if (isMyTurn && document.getElementById('hint-input').offsetParent !== null) {
+    document.getElementById('hint-input').focus();
+  }
+
+  renderPlayPlayers(currentId);
+  startTimer(gameState.settings.turnTime);
+}
+
+function renderPlayPlayers(activeId) {
+  const list = document.getElementById('play-player-list');
+  list.innerHTML = '';
+  gameState.players.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'player-item' + (p.id === activeId ? ' active' : '');
+    const color = stringToColor(p.name);
+    div.innerHTML = `
+      <div class="player-avatar" style="background:${color}20;color:${color}">${p.name[0].toUpperCase()}</div>
+      <div class="player-name">${escHtml(p.name)}</div>
+      ${p.id === activeId ? '<span class="badge badge-speaking">PARLE</span>' : ''}
+      ${p.id === myId ? '<span class="badge badge-you">VOUS</span>' : ''}
+      <div class="player-score">${p.score}pts</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function renderHints(hints, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  hints.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hint-item' + (h.playerId === myId ? ' mine' : '');
+    div.innerHTML = `
+      <div class="hint-name">${escHtml(h.playerName)}</div>
+      <div class="hint-text">${escHtml(h.hint)}</div>
+      <div class="hint-turn">T${h.turn}R${h.round}</div>
+    `;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function showVoting() {
+  showScreen('voting');
+  selectedVote = null;
+  document.getElementById('confirm-vote-btn').disabled = true;
+  document.getElementById('votes-received').textContent = '0';
+  document.getElementById('votes-total').textContent = gameState.players.length;
+
+  // Word reminder
+  if (myRole === 'mrwhite') {
+    document.getElementById('vote-word-reminder').textContent = '??? (Mr. White)';
+  } else {
+    document.getElementById('vote-word-reminder').textContent = myWord || '?';
+  }
+
+  // Hints review
+  renderHints(gameState.hints || [], 'vote-hints-list');
+
+  // Vote grid
+  const grid = document.getElementById('vote-grid');
+  grid.innerHTML = '';
+  gameState.players.forEach(p => {
+    if (p.id === myId) return; // Can't vote for yourself
+    const div = document.createElement('div');
+    div.className = 'vote-card';
+    div.dataset.pid = p.id;
+    const color = stringToColor(p.name);
+    div.innerHTML = `
+      <div class="player-avatar" style="background:${color}20;color:${color};margin:0 auto 8px;">${p.name[0].toUpperCase()}</div>
+      <div>${escHtml(p.name)}</div>
+    `;
+    div.onclick = () => {
+      document.querySelectorAll('.vote-card').forEach(c => c.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedVote = p.id;
+      document.getElementById('confirm-vote-btn').disabled = false;
+    };
+    grid.appendChild(div);
+  });
+}
+
+function showRoundEnd(msg) {
+  showScreen('roundend');
+  const r = msg.roundResult;
+  const title = document.getElementById('round-result-title');
+
+  const elim = r.eliminated;
+  let titleText, titleClass;
+  if (elim?.role === 'undercover' || elim?.role === 'mrwhite') {
+    titleText = '✅ CIVILS GAGNENT';
+    titleClass = 'win';
+  } else {
+    titleText = '🕵️ IMPOSTEUR SURVIT';
+    titleClass = 'lose';
+  }
+  title.textContent = titleText;
+  title.className = 'result-big ' + titleClass;
+
+  // Reveal words
+  document.getElementById('reveal-civil').textContent = msg.wordPair?.civilian || '-';
+  document.getElementById('reveal-under').textContent = msg.wordPair?.undercover || '-';
+
+  // Eliminated reveal
+  if (elim) {
+    const roleLabels = { civilian: '👤 Civil', undercover: '🕵️ Imposteur', mrwhite: '🤍 Mr. White' };
+    notify(`${elim.name} était ${roleLabels[elim.role] || elim.role}`, 4000);
+  }
+
+  // Mr White guess section
+  const mwSection = document.getElementById('mrwhite-guess-section');
+  mrWhiteNeedsGuess = r.mrWhiteEliminated;
+  if (r.mrWhiteEliminated) {
+    mwSection.classList.remove('hidden');
+    const isMrWhite = myRole === 'mrwhite';
+    document.getElementById('mrwhite-is-you').classList.toggle('hidden', !isMrWhite);
+    document.getElementById('mrwhite-waiting').classList.toggle('hidden', isMrWhite);
+    document.getElementById('mrwhite-result').classList.add('hidden');
+  } else {
+    mwSection.classList.add('hidden');
+  }
+
+  // Scores
+  const scoresEl = document.getElementById('round-scores');
+  scoresEl.innerHTML = '';
+  gameState.players.sort((a,b) => b.score - a.score).forEach(p => {
+    const color = stringToColor(p.name);
+    const div = document.createElement('div');
+    div.className = 'lb-item';
+    div.innerHTML = `
+      <div class="player-avatar" style="background:${color}20;color:${color}">${p.name[0].toUpperCase()}</div>
+      <div style="flex:1">${escHtml(p.name)}</div>
+      <div class="lb-score">${p.score}</div>
+    `;
+    scoresEl.appendChild(div);
+  });
+
+  // Next round button
+  const canNext = gameState.currentRound < gameState.settings.rounds;
+  if (isHost) {
+    document.getElementById('next-round-host').classList.remove('hidden');
+    document.getElementById('next-round-guest').style.display = 'none';
+    const nextBtn = document.querySelector('#next-round-host button');
+    if (nextBtn) nextBtn.textContent = canNext ? 'MANCHE SUIVANTE →' : 'VOIR LE CLASSEMENT';
+  } else {
+    document.getElementById('next-round-host').classList.add('hidden');
+    document.getElementById('next-round-guest').style.display = 'block';
+  }
+}
+
+function showMrWhiteResult(msg) {
+  const resultEl = document.getElementById('mrwhite-result');
+  document.getElementById('mrwhite-is-you').classList.add('hidden');
+  document.getElementById('mrwhite-waiting').classList.add('hidden');
+  resultEl.classList.remove('hidden');
+  if (msg.correct) {
+    resultEl.innerHTML = `<div style="color:var(--gold);font-family:'Bebas Neue';font-size:24px;">✅ MR. WHITE DEVINE !</div><p>Le mot était "<em>${escHtml(msg.civilianWord)}</em>" — +200 pts !</p>`;
+  } else {
+    resultEl.innerHTML = `<div style="color:var(--danger);font-family:'Bebas Neue';font-size:24px;">❌ RATÉ !</div><p>"${escHtml(msg.guess)}" — Le mot était "<em>${escHtml(msg.civilianWord)}</em>"</p>`;
+  }
+}
+
+function showGameEnd(msg) {
+  showScreen('gameend');
+  const lb = document.getElementById('leaderboard');
+  lb.innerHTML = '';
+  const rankClasses = ['first','second','third'];
+  msg.leaderboard.forEach((p, i) => {
+    const color = stringToColor(p.name);
+    const div = document.createElement('div');
+    div.className = 'lb-item';
+    const roleLabels = { civilian: '👤', undercover: '🕵️', mrwhite: '🤍' };
+    div.innerHTML = `
+      <div class="lb-rank ${rankClasses[i] || ''}">${i === 0 ? '🏆' : i+1}</div>
+      <div class="player-avatar" style="background:${color}20;color:${color}">${p.name[0].toUpperCase()}</div>
+      <div style="flex:1">${escHtml(p.name)} <span style="font-size:11px;color:var(--muted)">${roleLabels[p.role]||''}</span></div>
+      <div class="lb-score">${p.score}</div>
+    `;
+    lb.appendChild(div);
+  });
+
+  if (isHost) {
+    document.getElementById('gameend-host').classList.remove('hidden');
+    document.getElementById('gameend-guest').classList.add('hidden');
+  } else {
+    document.getElementById('gameend-host').classList.add('hidden');
+    document.getElementById('gameend-guest').classList.remove('hidden');
+  }
+}
+
+// ─── WORD EDITOR ───────────────────────────────────────────────────────────────
+function renderWordEditor() {
+  const container = document.getElementById('word-pairs-editor');
+  container.innerHTML = '';
+  localWordPairs.forEach((pair, i) => {
+    const row = document.createElement('div');
+    row.className = 'word-pair-row';
+    row.innerHTML = `
+      <input type="text" value="${escHtml(pair.civilian)}" placeholder="Mot civil" oninput="localWordPairs[${i}].civilian=this.value">
+      <input type="text" value="${escHtml(pair.undercover)}" placeholder="Mot imposteur" style="border-color:rgba(255,60,95,0.3)" oninput="localWordPairs[${i}].undercover=this.value">
+      ${isHost ? `<button class="btn-remove" onclick="removeWordPair(${i})">✕</button>` : ''}
+    `;
+    if (!isHost) row.querySelectorAll('input').forEach(inp => inp.disabled = true);
+    container.appendChild(row);
+  });
+}
+
+function addWordPair() {
+  localWordPairs.push({ civilian: '', undercover: '' });
+  renderWordEditor();
+}
+
+function removeWordPair(i) {
+  localWordPairs.splice(i, 1);
+  renderWordEditor();
+}
+
+// ─── TIMER ────────────────────────────────────────────────────────────────────
+function startTimer(seconds) {
+  stopTimer();
+  const circle = document.getElementById('timer-circle');
+  const numEl = document.getElementById('timer-number');
+  const circumference = 175.93;
+
+  if (!seconds || seconds === 0) {
+    numEl.textContent = '∞';
+    circle.style.strokeDashoffset = 0;
+    circle.style.stroke = 'var(--muted)';
+    return;
+  }
+
+  timerRemaining = seconds;
+  const totalTime = seconds;
+
+  function tick() {
+    const ratio = timerRemaining / totalTime;
+    const offset = circumference * (1 - ratio);
+    circle.style.strokeDashoffset = offset;
+    numEl.textContent = timerRemaining;
+    circle.style.stroke = timerRemaining <= 5 ? 'var(--danger)' : timerRemaining <= 10 ? 'var(--warn)' : 'var(--accent)';
+
+    if (timerRemaining <= 0) {
+      stopTimer();
+      // Auto-skip if it's my turn
+      send({ type: 'skipTurn' });
+      return;
+    }
+    timerRemaining--;
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function notify(msg, duration = 2500) {
+  const el = document.createElement('div');
+  el.className = 'notif';
+  el.textContent = msg;
+  document.getElementById('notif-container').appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  const colors = ['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dda0dd','#98d8c8','#f7dc6f','#82e0aa','#f1948a','#85c1e9','#d7bde2'];
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// Enter key shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const active = document.activeElement;
+    if (active.id === 'hint-input') submitHint();
+    if (active.id === 'join-name' || active.id === 'join-code') joinLobby();
+    if (active.id === 'create-name') createLobby();
+    if (active.id === 'mrwhite-guess-input') submitMrWhiteGuess();
+  }
+});
+</script>
+</body>
+</html>
