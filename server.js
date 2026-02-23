@@ -264,10 +264,11 @@ function processVotes(lobby) {
 
   lobby.state = 'roundEnd';
   lobby.lastRoundResult = roundResult; // pour mrWhiteGuess
+  // Ne pas envoyer wordPair si Mr White doit encore deviner (évite la fuite du mot)
   broadcast(lobby, {
     type: 'roundEnd',
     roundResult,
-    wordPair: lobby.wordPair,
+    wordPair: roundResult.mrWhiteCanGuess ? null : lobby.wordPair,
     state: getLobbyPublicState(lobby),
   });
 
@@ -562,7 +563,7 @@ function handleConnection(ws) {
         if (mw) mw.score = (mw.score || 0) + bonus;
       }
       const isLastRound = lobby.currentRound >= lobby.settings.rounds;
-      broadcast(lobby, { type: 'mrWhiteGuessResult', guess: msg.guess, correct, civilianWord, wasEliminated, isLastRound, state: getLobbyPublicState(lobby) });
+      broadcast(lobby, { type: 'mrWhiteGuessResult', guess: msg.guess, correct, civilianWord, wasEliminated, isLastRound, wordPair: lobby.wordPair, state: getLobbyPublicState(lobby) });
       // Ne pas auto-terminer — l'hôte clique sur le bouton final
       return;
     }

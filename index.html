@@ -965,6 +965,7 @@ function handleMessage(msg) {
 
     case 'roundStart':
       gameState = msg.state;
+      myWord = null; myRole = null; // Réinitialiser avant de recevoir yourWord
       showScreen('playing');
       initPlayScreen();
       break;
@@ -1338,9 +1339,9 @@ function showMrWhiteResult(msg) {
   document.getElementById('mrwhite-waiting').classList.add('hidden');
   resultEl.classList.remove('hidden');
 
-  // Maintenant on révèle les mots
-  document.getElementById('reveal-civil').textContent = msg.civilianWord || '-';
-  document.getElementById('reveal-under').textContent = pendingWordPair?.undercover || '-';
+  // Maintenant on révèle les mots (wordPair envoyé par le serveur après la devinette)
+  document.getElementById('reveal-civil').textContent = msg.wordPair?.civilian || msg.civilianWord || '-';
+  document.getElementById('reveal-under').textContent = msg.wordPair?.undercover || '-';
 
   // Mettre à jour le titre
   const title = document.getElementById('round-result-title');
