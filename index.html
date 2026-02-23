@@ -1226,7 +1226,7 @@ function showRoundEnd(msg) {
   const title = document.getElementById('round-result-title');
 
   // Titre — si Mr White doit deviner, ne pas révéler que c'est l'imposteur
-  if (r.mrWhiteEliminated) {
+  if (r.mrWhiteCanGuess) {
     title.textContent = '🗳️ VOTE TERMINÉ';
     title.className = 'result-big';
     title.style.color = 'var(--muted)';
@@ -1245,7 +1245,7 @@ function showRoundEnd(msg) {
   }
 
   // Mots — masqués si Mr White doit encore deviner
-  if (r.mrWhiteEliminated) {
+  if (r.mrWhiteCanGuess) {
     document.getElementById('reveal-civil').textContent = '???';
     document.getElementById('reveal-under').textContent = '???';
   } else {
@@ -1254,7 +1254,7 @@ function showRoundEnd(msg) {
   }
 
   // Notification discrète
-  if (!r.mrWhiteEliminated) {
+  if (!r.mrWhiteCanGuess) {
     if (r.isTie) {
       notify('⚠️ Égalité — aucun bonus attribué', 4000);
     } else {
@@ -1263,16 +1263,15 @@ function showRoundEnd(msg) {
     }
   }
 
-  // Section Mr White guess
+  // Section Mr White guess — toujours disponible si mode Mr White actif
   const mwSection = document.getElementById('mrwhite-guess-section');
-  mrWhiteNeedsGuess = r.mrWhiteEliminated;
-  if (r.mrWhiteEliminated) {
+  mrWhiteNeedsGuess = r.mrWhiteCanGuess;
+  if (r.mrWhiteCanGuess) {
     mwSection.classList.remove('hidden');
     const isMrWhite = myRole === 'mrwhite';
     document.getElementById('mrwhite-is-you').classList.toggle('hidden', !isMrWhite);
     document.getElementById('mrwhite-waiting').classList.toggle('hidden', isMrWhite);
     document.getElementById('mrwhite-result').classList.add('hidden');
-    // Réinitialiser l'input
     const inp = document.getElementById('mrwhite-guess-input');
     if (inp) { inp.value = ''; inp.disabled = false; }
   } else {
@@ -1326,7 +1325,7 @@ function refreshNextRoundBtn(waitingForMrWhite) {
   } else if (isHost) {
     hostEl.classList.remove('hidden');
     guestEl.classList.add('hidden');
-    if (nextBtn) nextBtn.textContent = canNext ? 'MANCHE SUIVANTE →' : 'VOIR LE CLASSEMENT FINAL';
+    if (nextBtn) nextBtn.textContent = canNext ? 'MANCHE SUIVANTE →' : 'CLASSEMENT FINAL →';
   } else {
     hostEl.classList.add('hidden');
     guestEl.classList.remove('hidden');
@@ -1350,8 +1349,9 @@ function showMrWhiteResult(msg) {
   title.style.color = '';
 
   if (msg.correct) {
-    resultEl.innerHTML = `<div style="color:var(--gold);font-family:'Bebas Neue';font-size:24px;">✅ MR. WHITE DEVINE !</div><p>Le mot était "<em>${escHtml(msg.civilianWord)}</em>" — +200 pts !</p>`;
-    notify('🤍 Mr. White a deviné le bon mot ! +200 pts', 4000);
+    const pts = msg.wasEliminated ? 250 : 50;
+    resultEl.innerHTML = `<div style="color:var(--gold);font-family:'Bebas Neue';font-size:24px;">✅ MR. WHITE DEVINE !</div><p>Le mot était "<em>${escHtml(msg.civilianWord)}</em>" — +${pts} pts !</p>`;
+    notify(`🤍 Mr. White a deviné ! +${pts} pts`, 4000);
   } else {
     resultEl.innerHTML = `<div style="color:var(--danger);font-family:'Bebas Neue';font-size:24px;">❌ RATÉ !</div><p>"${escHtml(msg.guess)}" — Le mot était "<em>${escHtml(msg.civilianWord)}</em>"</p>`;
     notify('❌ Mr. White a raté sa devinette', 3000);
