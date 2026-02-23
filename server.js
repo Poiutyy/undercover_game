@@ -811,7 +811,8 @@ function handleConnection(ws) {
     if (type === 'skipTurn') {
       if (lobby.state !== 'playing') return;
       const currentId = lobby.turnOrder[lobby.currentPlayerIndex];
-      if (currentId !== playerId && lobby.host !== playerId) return;
+      if (currentId !== playerId && lobby.host !== playerId)
+ return;
       lobby.hints.push({ playerId: currentId, playerName: lobby.players.find(p=>p.id===currentId)?.name, hint: '⏭️ (temps écoulé)', turn: lobby.currentTurn, round: lobby.currentRound });
       broadcast(lobby, { type: 'hintSubmitted', hints: lobby.hints, state: getLobbyPublicState(lobby) });
       nextTurn(lobby);

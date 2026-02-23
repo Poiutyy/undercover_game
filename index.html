@@ -802,6 +802,7 @@ let myWord = null;
 let myRole = null;
 let selectedVote = null;
 let timerInterval = null;
+let currentTurnPlayerId = null;
 let timerRemaining = 0;
 let localWordPairs = [];
 let mrWhiteNeedsGuess = false;
@@ -1121,6 +1122,7 @@ function initPlayScreen() {
 
 function updatePlayScreen(msg) {
   const currentId = msg.currentPlayerId;
+  currentTurnPlayerId = currentId;
   document.getElementById('round-info').textContent = `Manche ${msg.round}/${gameState.settings.rounds}`;
   document.getElementById('turn-info').textContent = msg.turn;
 
@@ -1234,17 +1236,21 @@ function showRoundEnd(msg) {
     title.style.color = '';
   }
 
-  // Reveal words
-  document.getElementById('reveal-civil').textContent = msg.wordPair?.civilian || '-';
-  document.getElementById('reveal-under').textContent = msg.wordPair?.undercover || '-';
+  // Reveal words — masqués si Mr White doit encore deviner
+  if (r.mrWhiteEliminated) {
+    document.getElementById('reveal-civil').textContent = '???';
+    document.getElementById('reveal-under').textContent = '???';
+  } else {
+    document.getElementById('reveal-civil').textContent = msg.wordPair?.civilian || '-';
+    document.getElementById('reveal-under').textContent = msg.wordPair?.undercover || '-';
+  }
 
   // Notification du résultat du vote
   if (r.isTie) {
-    notify('⚖️ Égalité — aucun bonus attribué', 4000);
+    notify('⚠️ Égalité — aucun bonus attribué', 4000);
   } else {
     const mostVoted = gameState.players.find(p => p.id === r.mostVotedId);
-    const isImposteur = r.mostVotedId === r.imposteurId;
-    notify(`${mostVoted?.name} a été désigné — ${isImposteur ? "c\u2019était l\u2019imposteur ! (+50 civils)" : "c\u2019était un civil ! (+50 imposteur)"}`, 4000);
+    notify(`${mostVoted?.name} a été désigné par la majorité`, 3000);
   }
 
   // Mr White guess section
@@ -1400,8 +1406,10 @@ function startTimer(seconds) {
 
     if (timerRemaining <= 0) {
       stopTimer();
-      // Auto-skip if it's my turn
-      send({ type: 'skipTurn' });
+      // N'envoyer skipTurn que si c'est vraiment mon tour
+      if (currentTurnPlayerId === myId) {
+        send({ type: 'skipTurn' });
+      }
       return;
     }
     timerRemaining--;
